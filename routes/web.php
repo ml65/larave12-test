@@ -22,4 +22,6 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
 // Админ-панель (только для менеджеров)
 Route::middleware([EnsureUserIsManager::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{id}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::put('/tickets/{id}/status', [TicketController::class, 'updateStatus'])->name('tickets.updateStatus');
 });
