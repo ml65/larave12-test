@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Resources\TicketResource;
+use App\Http\Resources\TicketStatisticsResource;
+use App\Repositories\TicketRepository;
 use App\Services\TicketService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +16,8 @@ use Illuminate\Support\Facades\Log;
 class TicketController extends Controller
 {
     public function __construct(
-        private readonly TicketService $ticketService
+        private readonly TicketService $ticketService,
+        private readonly TicketRepository $ticketRepository
     ) {
     }
 
@@ -64,5 +67,33 @@ class TicketController extends Controller
                 'message' => 'Failed to create ticket. Please try again later.',
             ], 500);
         }
+    }
+
+    /**
+     * Получить статистику по заявкам
+     */
+    public function statistics(): TicketStatisticsResource|JsonResponse
+    {
+        // Проверка авторизации
+        if (!auth()->check()) {
+            return response()->json([
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        // Проверка роли менеджера
+        if (!auth()->user()->hasRole('manager')) {
+            return response()->json([
+                'message' => 'Access denied. Manager role required.',
+            ], 403);
+        }
+
+        $statistics = [
+            'daily' => $this->ticketRepository->getDailyCount(),
+            'weekly' => $this->ticketRepository->getWeeklyCount(),
+            'monthly' => $this->ticketRepository->getMonthlyCount(),
+        ];
+
+        return new TicketStatisticsResource($statistics);
     }
 }
