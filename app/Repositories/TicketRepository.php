@@ -62,7 +62,7 @@ class TicketRepository extends BaseRepository
             $query->whereIn('customer_id', $customerIds);
         }
 
-        return $query->get();
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     /**
