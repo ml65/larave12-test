@@ -1,59 +1,422 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Mini-CRM System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Система для сбора и обработки заявок с сайтов через универсальный виджет.
 
-## About Laravel
+## Описание
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Mini-CRM — это простое решение для автоматизированного сбора заявок с различных сайтов через встраиваемый виджет. Система позволяет клиентам оставлять заявки, а менеджерам — управлять ими через удобную админ-панель.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Основные возможности
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 📝 Создание заявок через виджет
+- 📎 Прикрепление файлов к заявкам
+- 👥 Автоматическое создание клиентов
+- 🔒 Ролевая система доступа (менеджеры)
+- 📊 Статистика по заявкам (дневная, недельная, месячная)
+- 🛡️ Защита от спама (лимит: 1 заявка в день с одного контакта)
+- 📱 Адаптивный интерфейс
 
-## Learning Laravel
+## Требования
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **PHP** 8.2 или выше
+- **MySQL** 8.0 или выше
+- **Composer** 2.x
+- **Node.js** и **NPM** (для компиляции фронтенда, опционально)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Установка
 
-## Laravel Sponsors
+### 1. Клонирование репозитория
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+git clone <repository-url>
+cd laravel-test
+```
 
-### Premium Partners
+### 2. Установка зависимостей
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+composer install
+```
 
-## Contributing
+### 3. Настройка окружения
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Скопируйте файл `.env.example` в `.env`:
 
-## Code of Conduct
+```bash
+cp .env.example .env
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Отредактируйте `.env` и укажите параметры подключения к базе данных:
 
-## Security Vulnerabilities
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laraveltest
+DB_USERNAME=laraveltest
+DB_PASSWORD=SuperPupppper321
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Генерация ключа приложения
 
-## License
+```bash
+php artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 5. Запуск миграций
+
+```bash
+php artisan migrate
+```
+
+### 6. Заполнение базы данных тестовыми данными
+
+```bash
+php artisan db:seed
+```
+
+## Запуск
+
+### Локальная разработка
+
+Запустите встроенный сервер Laravel:
+
+```bash
+php artisan serve
+```
+
+Приложение будет доступно по адресу: `http://localhost:8000`
+
+### Остановка сервера
+
+Нажмите `Ctrl+C` в терминале.
+
+## Тестовые данные
+
+После выполнения `php artisan db:seed` в системе будет создан тестовый менеджер:
+
+- **Email:** `manager@example.com`
+- **Пароль:** `password`
+
+Также будут созданы:
+- 5 тестовых клиентов
+- 15 тестовых заявок (по 3 на каждого клиента с разными статусами)
+
+## Виджет
+
+### Встраивание виджета на сайт
+
+Виджет можно встроить на любой сайт через `<iframe>`:
+
+```html
+<iframe 
+    src="http://localhost:8000/widget" 
+    width="100%" 
+    height="600" 
+    frameborder="0"
+    style="border: none;">
+</iframe>
+```
+
+### Параметры виджета
+
+- **URL:** `/widget`
+- **Ширина:** рекомендуется 100% или минимум 400px
+- **Высота:** рекомендуется 600px или больше
+
+### Пример полной интеграции
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мой сайт</title>
+</head>
+<body>
+    <h1>Свяжитесь с нами</h1>
+    
+    <iframe 
+        src="http://localhost:8000/widget" 
+        width="100%" 
+        height="600" 
+        frameborder="0"
+        style="border: none; max-width: 600px; margin: 0 auto; display: block;">
+    </iframe>
+</body>
+</html>
+```
+
+## API
+
+### Базовый URL
+
+```
+http://localhost:8000/api
+```
+
+### Создание заявки
+
+**POST** `/api/tickets`
+
+Создает новую заявку. Если клиент с указанным телефоном не существует, он будет создан автоматически.
+
+#### Запрос
+
+```bash
+curl -X POST http://localhost:8000/api/tickets \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Иван Иванов",
+    "phone": "+79991234567",
+    "email": "ivan@example.com",
+    "subject": "Вопрос по услугам",
+    "text": "Хочу узнать больше о ваших услугах"
+  }'
+```
+
+#### С файлами
+
+```bash
+curl -X POST http://localhost:8000/api/tickets \
+  -F "name=Иван Иванов" \
+  -F "phone=+79991234567" \
+  -F "email=ivan@example.com" \
+  -F "subject=Вопрос по услугам" \
+  -F "text=Хочу узнать больше о ваших услугах" \
+  -F "files[]=@/path/to/file1.pdf" \
+  -F "files[]=@/path/to/file2.jpg"
+```
+
+#### Параметры
+
+| Параметр | Тип | Обязательный | Описание |
+|----------|-----|--------------|----------|
+| `name` | string | Да | Имя клиента |
+| `phone` | string | Да | Телефон в формате E.164 (например, +79991234567) |
+| `email` | string | Нет | Email клиента |
+| `subject` | string | Да | Тема заявки |
+| `text` | string | Да | Текст заявки |
+| `files` | array | Нет | Массив файлов (максимум 10MB на файл) |
+
+#### Ответ (201 Created)
+
+```json
+{
+  "id": 1,
+  "subject": "Вопрос по услугам",
+  "text": "Хочу узнать больше о ваших услугах",
+  "status": "new",
+  "customer": {
+    "id": 1,
+    "name": "Иван Иванов",
+    "phone": "+79991234567",
+    "email": "ivan@example.com"
+  },
+  "files": [],
+  "created_at": "2024-01-15T10:30:00.000000Z"
+}
+```
+
+#### Ошибки
+
+**422 Unprocessable Entity** — ошибки валидации:
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "phone": ["The phone number must be in E.164 format (e.g., +1234567890)."],
+    "name": ["The name field is required."]
+  }
+}
+```
+
+**429 Too Many Requests** — превышен лимит заявок:
+
+```json
+{
+  "message": "Only one ticket per day is allowed from the same contact"
+}
+```
+
+### Получение статистики
+
+**GET** `/api/tickets/statistics`
+
+Возвращает статистику по заявкам. Доступно только для авторизованных менеджеров.
+
+#### Авторизация
+
+Используйте Laravel Sanctum для авторизации. Получите токен:
+
+```bash
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "manager@example.com",
+    "password": "password"
+  }'
+```
+
+#### Запрос
+
+```bash
+curl -X GET http://localhost:8000/api/tickets/statistics \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Ответ (200 OK)
+
+```json
+{
+  "data": {
+    "daily": 5,
+    "weekly": 12,
+    "monthly": 45
+  }
+}
+```
+
+#### Ошибки
+
+**401 Unauthorized** — не авторизован:
+
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+**403 Forbidden** — нет прав менеджера:
+
+```json
+{
+  "message": "Access denied. Manager role required."
+}
+```
+
+## Админ-панель
+
+### Вход в админ-панель
+
+1. Перейдите по адресу: `http://localhost:8000/admin/login`
+2. Введите данные менеджера:
+   - Email: `manager@example.com`
+   - Пароль: `password`
+
+### Функционал админ-панели
+
+- 📋 Список всех заявок с фильтрацией
+- 🔍 Поиск по клиентам (email, телефон)
+- 📊 Фильтрация по статусу
+- 📄 Просмотр деталей заявки
+- ✏️ Изменение статуса заявки
+- 📎 Скачивание прикрепленных файлов
+
+### Маршруты админ-панели
+
+- `/admin/tickets` — список заявок
+- `/admin/tickets/{id}` — детали заявки
+- `/admin/tickets/{id}/status` — изменение статуса (PUT)
+
+## Структура проекта
+
+```
+laravel-test/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Api/          # API контроллеры
+│   │   │   └── Web/          # Web контроллеры (админ-панель)
+│   │   ├── Middleware/       # Middleware
+│   │   ├── Requests/         # FormRequest валидация
+│   │   └── Resources/        # API Resources
+│   ├── Models/               # Eloquent модели
+│   ├── Repositories/         # Репозитории (работа с БД)
+│   └── Services/             # Сервисы (бизнес-логика)
+├── database/
+│   ├── factories/            # Фабрики для тестовых данных
+│   ├── migrations/           # Миграции БД
+│   └── seeders/              # Сидеры
+├── resources/
+│   └── views/
+│       ├── admin/            # Шаблоны админ-панели
+│       └── widget.blade.php  # Шаблон виджета
+├── routes/
+│   ├── api.php               # API маршруты
+│   └── web.php               # Web маршруты
+├── tests/                     # Тесты
+└── docs/                      # Документация проекта
+```
+
+## Архитектура
+
+Проект следует принципам **SOLID** и использует трехслойную архитектуру:
+
+1. **Controller** → координация, вызов сервисов, возврат ответов
+2. **Service** → вся бизнес-логика
+3. **Repository** → работа с БД (CRUD, фильтрация, статистика)
+
+### Принципы разработки
+
+- **KISS** — максимальная простота, никакого оверинжиниринга
+- **SOLID** — следование принципам объектно-ориентированного программирования
+- **DRY** — избегание дублирования кода
+- **PSR-12** — стандарт кодирования PHP
+
+Подробнее см. [docs/vision.md](./docs/vision.md) и [docs/conventions.md](./docs/conventions.md).
+
+## Тестирование
+
+Запуск всех тестов:
+
+```bash
+php artisan test
+```
+
+Запуск конкретного теста:
+
+```bash
+php artisan test tests/Feature/TicketApiTest.php
+```
+
+## Разработка
+
+### Создание миграции
+
+```bash
+php artisan make:migration create_example_table
+```
+
+### Создание модели
+
+```bash
+php artisan make:model Example
+```
+
+### Создание контроллера
+
+```bash
+php artisan make:controller Api/ExampleController
+```
+
+### Создание FormRequest
+
+```bash
+php artisan make:request StoreExampleRequest
+```
+
+### Создание API Resource
+
+```bash
+php artisan make:resource ExampleResource
+```
+
+## Лицензия
+
+MIT
+
+## Поддержка
+
+При возникновении проблем создайте issue в репозитории проекта.
+
