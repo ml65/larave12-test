@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\Ticket;
 use App\Repositories\TicketRepository;
-use Illuminate\Support\Carbon;
 
 class TicketService extends BaseService
 {
@@ -19,32 +18,40 @@ class TicketService extends BaseService
     /**
      * Создать заявку
      *
-     * @throws \RuntimeException Если превышен лимит заявок (более 1 в день с одного контакта)
+     * @throws \RuntimeException Если превышен лимит заявок (1 в день)
      */
     public function create(array $data): Ticket
     {
+        // Проверяем лимит: не более 1 заявки в день с одного контакта
+        $phone = $data['phone'] ?? null;
+        $email = $data['email'] ?? null;
+
+        if ($phone === null) {
+            throw new \InvalidArgumentException('Phone is required');
+        }
+
         // Находим или создаем клиента
         $customer = $this->customerService->findOrCreate([
-            'name' => $data['name'],
-            'phone' => $data['phone'],
-            'email' => $data['email'] ?? null,
+            'name' => $data['name'] ?? '',
+            'phone' => $phone,
+            'email' => $email,
         ]);
 
-        // Проверяем лимит: не более 1 заявки в день с одного контакта
+        // Проверяем, есть ли заявка от этого клиента за сегодня
         $todayTickets = $this->ticketRepository->findByCustomerId($customer->id)
             ->filter(function (Ticket $ticket) {
                 return $ticket->created_at->isToday();
             });
 
-        if ($todayTickets->count() > 0) {
-            throw new \RuntimeException('Превышен лимит: не более одной заявки в день с одного контакта');
+        if ($todayTickets->isNotEmpty()) {
+            throw new \RuntimeException('Only one ticket per day is allowed from the same contact');
         }
 
         // Создаем заявку
         return $this->ticketRepository->create([
             'customer_id' => $customer->id,
-            'subject' => $data['subject'],
-            'text' => $data['text'],
+            'subject' => $data['subject'] ?? '',
+            'text' => $data['text'] ?? '',
             'status' => Ticket::STATUS_NEW,
             'manager_response_date' => null,
         ]);
@@ -53,7 +60,7 @@ class TicketService extends BaseService
     /**
      * Изменить статус заявки
      *
-     * @throws \InvalidArgumentException Если статус невалиден
+     * @throws \InvalidArgumentException Если статус невалидный
      */
     public function updateStatus(int $ticketId, string $status): Ticket
     {
@@ -64,25 +71,21 @@ class TicketService extends BaseService
         ];
 
         if (!in_array($status, $validStatuses, true)) {
-            throw new \InvalidArgumentException("Невалидный статус: {$status}");
+            throw new \InvalidArgumentException("Invalid status: {$status}");
         }
 
         $ticket = $this->ticketRepository->find($ticketId);
 
         if ($ticket === null) {
-            throw new \RuntimeException("Заявка с ID {$ticketId} не найдена");
+            throw new \RuntimeException("Ticket with ID {$ticketId} not found");
         }
 
-        $updateData = ['status' => $status];
-
-        // Если статус меняется на "в работе" или "обработан", устанавливаем дату ответа
-        if (in_array($status, [Ticket::STATUS_IN_PROGRESS, Ticket::STATUS_COMPLETED], true)) {
-            $updateData['manager_response_date'] = Carbon::now();
-        }
-
-        $this->ticketRepository->update($ticket, $updateData);
+        // Обновляем статус
+        $this->ticketRepository->update($ticket, [
+            'status' => $status,
+            'manager_response_date' => $status !== Ticket::STATUS_NEW ? now() : null,
+        ]);
 
         return $ticket->fresh();
     }
 }
-

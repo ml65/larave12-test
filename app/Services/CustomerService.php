@@ -19,22 +19,36 @@ class CustomerService extends BaseService
      */
     public function findOrCreate(array $data): Customer
     {
-        $phone = $data['phone'];
+        $phone = $data['phone'] ?? null;
         $email = $data['email'] ?? null;
+
+        if ($phone === null) {
+            throw new \InvalidArgumentException('Phone is required');
+        }
 
         // Ищем клиента по телефону или email
         $customer = $this->customerRepository->findByPhoneOrEmail($phone, $email);
 
         if ($customer !== null) {
+            // Обновляем данные если нужно
+            if (isset($data['name']) && $customer->name !== $data['name']) {
+                $customer->name = $data['name'];
+                $customer->save();
+            }
+
+            if (isset($data['email']) && $customer->email !== $data['email']) {
+                $customer->email = $data['email'];
+                $customer->save();
+            }
+
             return $customer;
         }
 
-        // Если не найден, создаем нового
+        // Создаем нового клиента
         return $this->customerRepository->create([
-            'name' => $data['name'],
+            'name' => $data['name'] ?? '',
             'phone' => $phone,
             'email' => $email,
         ]);
     }
 }
-
