@@ -301,6 +301,23 @@ return [
     'menu' => [
         // Navbar items:
         [
+            'text' => 'tickets',
+            'url' => 'admin/tickets',
+            'icon' => 'far fa-fw fa-file',
+            'label' => 0, // Будет обновлено в AppServiceProvider
+            'label_color' => 'danger',
+        ],
+            [
+                'text' => 'widget-test',
+                'url' => 'widget-test',
+                'icon' => 'far fa-fw fa-ticket-alt',
+                'label' => 1,
+                'label_color' => 'success',
+            ],
+
+            /*
+
+        [
             'type' => 'navbar-search',
             'text' => 'search',
             'topnav_right' => true,
@@ -392,6 +409,7 @@ return [
             'icon_color' => 'cyan',
             'url' => '#',
         ],
+        */
     ],
 
     /*

@@ -13,6 +13,9 @@ Route::get('/', function () {
 });
 
 Route::get('/widget', [WidgetController::class, 'show'])->name('widget');
+Route::get('/widget-test', function () {
+    return view('widget-test');
+})->name('widget-test');
 
 // Авторизация
 Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -21,7 +24,14 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Админ-панель (только для менеджеров)
 Route::middleware([EnsureUserIsManager::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('admin.tickets.index');
+    });
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/{id}', [TicketController::class, 'show'])->name('tickets.show');
     Route::put('/tickets/{id}/status', [TicketController::class, 'updateStatus'])->name('tickets.updateStatus');
+    // Редирект всех остальных запросов на /admin/tickets
+    Route::any('{any}', function () {
+        return redirect()->route('admin.tickets.index');
+    })->where('any', '.*');
 });
