@@ -108,5 +108,30 @@ class TicketRepository extends BaseRepository
     {
         return $this->model->monthly()->count();
     }
+
+    /**
+     * Подсчитать количество заявок за текущий день (0:00:00 - 23:59:59) по телефону и email
+     * 
+     * Проверяет заявки, где клиент имеет такой же телефон ИЛИ такой же email (если email указан)
+     */
+    public function countTicketsTodayByContact(string $phone, ?string $email = null): int
+    {
+        $startOfDay = now()->startOfDay(); // 0:00:00 текущего дня
+        $endOfDay = now()->endOfDay(); // 23:59:59 текущего дня
+
+        $query = $this->model
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->whereHas('customer', function (Builder $query) use ($phone, $email) {
+                $query->where(function (Builder $q) use ($phone, $email) {
+                    $q->where('phone', $phone);
+                    
+                    if ($email !== null && $email !== '') {
+                        $q->orWhere('email', $email);
+                    }
+                });
+            });
+
+        return $query->count();
+    }
 }
 

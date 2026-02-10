@@ -24,12 +24,19 @@ class TicketService extends BaseService
      */
     public function create(array $data): Ticket
     {
-        // Проверяем лимит: не более 1 заявки в день с одного контакта
+        // Проверяем лимит: не более 1 заявки в день с одного контакта (по номеру и email)
         $phone = $data['phone'] ?? null;
         $email = $data['email'] ?? null;
 
         if ($phone === null) {
             throw new \InvalidArgumentException('Phone is required');
+        }
+
+        // Проверяем лимит заявок за текущий день (с 0:00:00 до 23:59:59)
+        $todayTicketsCount = $this->ticketRepository->countTicketsTodayByContact($phone, $email);
+
+        if ($todayTicketsCount >= self::MAX_TICKETS_PER_DAY) {
+            throw new \RuntimeException('Only one ticket per day is allowed from the same contact');
         }
 
         // Находим или создаем клиента
@@ -38,16 +45,6 @@ class TicketService extends BaseService
             'phone' => $phone,
             'email' => $email,
         ]);
-
-        // Проверяем, есть ли заявка от этого клиента за сегодня
-        $todayTickets = $this->ticketRepository->findByCustomerId($customer->id)
-            ->filter(function (Ticket $ticket) {
-                return $ticket->created_at->isToday();
-            });
-
-        if ($todayTickets->count() >= self::MAX_TICKETS_PER_DAY) {
-            throw new \RuntimeException('Only one ticket per day is allowed from the same contact');
-        }
 
         // Создаем заявку
         return $this->ticketRepository->create([
