@@ -33,15 +33,9 @@ class TicketController extends Controller
 
         $tickets = $this->ticketRepository->filter($filters);
 
-        $statuses = [
-            Ticket::STATUS_NEW => 'Новая',
-            Ticket::STATUS_IN_PROGRESS => 'В работе',
-            Ticket::STATUS_COMPLETED => 'Обработана',
-        ];
-
         return view('admin.tickets.index', [
             'tickets' => $tickets,
-            'statuses' => $statuses,
+            'statuses' => Ticket::getStatusLabels(),
             'filters' => $filters,
         ]);
     }
@@ -60,16 +54,10 @@ class TicketController extends Controller
         $ticket->load('customer');
         $files = $ticket->getMedia('attachments');
 
-        $statuses = [
-            Ticket::STATUS_NEW => 'Новая',
-            Ticket::STATUS_IN_PROGRESS => 'В работе',
-            Ticket::STATUS_COMPLETED => 'Обработана',
-        ];
-
         return view('admin.tickets.show', [
             'ticket' => $ticket,
             'files' => $files,
-            'statuses' => $statuses,
+            'statuses' => Ticket::getStatusLabels(),
         ]);
     }
 
@@ -84,6 +72,14 @@ class TicketController extends Controller
             return redirect()
                 ->route('admin.tickets.show', $id)
                 ->with('success', 'Статус заявки успешно обновлен');
+        } catch (\InvalidArgumentException $e) {
+            return redirect()
+                ->route('admin.tickets.show', $id)
+                ->with('error', 'Неверный статус: ' . $e->getMessage());
+        } catch (\RuntimeException $e) {
+            return redirect()
+                ->route('admin.tickets.show', $id)
+                ->with('error', 'Заявка не найдена: ' . $e->getMessage());
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.tickets.show', $id)

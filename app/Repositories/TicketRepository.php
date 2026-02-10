@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Models\Customer;
 use App\Models\Ticket;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class TicketRepository extends BaseRepository
@@ -20,7 +21,7 @@ class TicketRepository extends BaseRepository
      */
     public function findByCustomerId(int $customerId): Collection
     {
-        return Ticket::where('customer_id', $customerId)->get();
+        return $this->model->where('customer_id', $customerId)->get();
     }
 
     /**
@@ -28,7 +29,7 @@ class TicketRepository extends BaseRepository
      */
     public function findByStatus(string $status): Collection
     {
-        return Ticket::where('status', $status)->get();
+        return $this->model->where('status', $status)->get();
     }
 
     /**
@@ -36,33 +37,52 @@ class TicketRepository extends BaseRepository
      */
     public function filter(array $filters): Collection
     {
-        $query = Ticket::with('customer');
-
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
-
-        if (isset($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
-        }
-
-        if (isset($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
-        }
-
-        if (isset($filters['email'])) {
-            $customerIds = Customer::where('email', 'like', '%' . $filters['email'] . '%')
-                ->pluck('id');
-            $query->whereIn('customer_id', $customerIds);
-        }
-
-        if (isset($filters['phone'])) {
-            $customerIds = Customer::where('phone', 'like', '%' . $filters['phone'] . '%')
-                ->pluck('id');
-            $query->whereIn('customer_id', $customerIds);
-        }
-
+        $query = $this->model->with('customer');
+        
+        $query = $this->applyFilters($query, $filters);
+        
         return $query->orderBy('created_at', 'desc')->get();
+    }
+
+    /**
+     * Применить фильтры к запросу
+     */
+    private function applyFilters(Builder $query, array $filters): Builder
+    {
+        foreach ($filters as $key => $value) {
+            match ($key) {
+                'status' => $query->where('status', $value),
+                'date_from' => $query->whereDate('created_at', '>=', $value),
+                'date_to' => $query->whereDate('created_at', '<=', $value),
+                'email' => $this->filterByCustomerEmail($query, $value),
+                'phone' => $this->filterByCustomerPhone($query, $value),
+                default => null,
+            };
+        }
+
+        return $query;
+    }
+
+    /**
+     * Фильтр по email клиента
+     */
+    private function filterByCustomerEmail(Builder $query, string $email): Builder
+    {
+        $customerIds = Customer::where('email', 'like', '%' . $email . '%')
+            ->pluck('id');
+        
+        return $query->whereIn('customer_id', $customerIds);
+    }
+
+    /**
+     * Фильтр по телефону клиента
+     */
+    private function filterByCustomerPhone(Builder $query, string $phone): Builder
+    {
+        $customerIds = Customer::where('phone', 'like', '%' . $phone . '%')
+            ->pluck('id');
+        
+        return $query->whereIn('customer_id', $customerIds);
     }
 
     /**
@@ -70,7 +90,7 @@ class TicketRepository extends BaseRepository
      */
     public function getDailyCount(): int
     {
-        return Ticket::daily()->count();
+        return $this->model->daily()->count();
     }
 
     /**
@@ -78,7 +98,7 @@ class TicketRepository extends BaseRepository
      */
     public function getWeeklyCount(): int
     {
-        return Ticket::weekly()->count();
+        return $this->model->weekly()->count();
     }
 
     /**
@@ -86,7 +106,7 @@ class TicketRepository extends BaseRepository
      */
     public function getMonthlyCount(): int
     {
-        return Ticket::monthly()->count();
+        return $this->model->monthly()->count();
     }
 }
 

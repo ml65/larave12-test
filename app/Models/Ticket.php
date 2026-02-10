@@ -66,4 +66,16 @@ class Ticket extends Model implements HasMedia
         return $query->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year);
     }
+
+    /**
+     * Получить массив статусов с переводами
+     */
+    public static function getStatusLabels(): array
+    {
+        return [
+            self::STATUS_NEW => 'Новая',
+            self::STATUS_IN_PROGRESS => 'В работе',
+            self::STATUS_COMPLETED => 'Обработана',
+        ];
+    }
 }

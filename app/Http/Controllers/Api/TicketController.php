@@ -35,17 +35,16 @@ class TicketController extends Controller
             // Загружаем связь с клиентом
             $ticket->load('customer');
             
-            // Обрабатываем файлы через медиа-библиотеку
+            // Обрабатываем файлы через сервис
             if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $ticket->addMedia($file->getRealPath())
-                        ->usingName($file->getClientOriginalName())
-                        ->usingFileName($file->getClientOriginalName())
-                        ->toMediaCollection('attachments');
-                }
+                $this->ticketService->attachFiles($ticket, $request->file('files'));
             }
             
             return new TicketResource($ticket);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
         } catch (\RuntimeException $e) {
             // Обработка ошибки лимита заявок
             Log::warning('Ticket creation limit exceeded', [

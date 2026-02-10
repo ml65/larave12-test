@@ -19,7 +19,7 @@ class CustomerRepository extends BaseRepository
      */
     public function findByPhone(string $phone): ?Customer
     {
-        return Customer::where('phone', $phone)->first();
+        return $this->model->where('phone', $phone)->first();
     }
 
     /**
@@ -27,7 +27,7 @@ class CustomerRepository extends BaseRepository
      */
     public function findByEmail(string $email): ?Customer
     {
-        return Customer::where('email', $email)->first();
+        return $this->model->where('email', $email)->first();
     }
 
     /**
@@ -35,7 +35,7 @@ class CustomerRepository extends BaseRepository
      */
     public function findByPhoneOrEmail(string $phone, ?string $email = null): ?Customer
     {
-        $query = Customer::where('phone', $phone);
+        $query = $this->model->where('phone', $phone);
 
         if ($email !== null) {
             $query->orWhere('email', $email);
@@ -49,7 +49,7 @@ class CustomerRepository extends BaseRepository
      */
     public function filter(array $filters): Collection
     {
-        $query = Customer::query();
+        $query = $this->model->newQuery();
 
         if (isset($filters['phone'])) {
             $query->where('phone', 'like', '%' . $filters['phone'] . '%');

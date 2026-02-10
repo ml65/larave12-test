@@ -30,14 +30,20 @@ class CustomerService extends BaseService
         $customer = $this->customerRepository->findByPhoneOrEmail($phone, $email);
 
         if ($customer !== null) {
-            // Обновляем данные если нужно
+            // Обновляем данные если нужно (одно сохранение)
+            $updated = false;
+
             if (isset($data['name']) && $customer->name !== $data['name']) {
                 $customer->name = $data['name'];
-                $customer->save();
+                $updated = true;
             }
 
             if (isset($data['email']) && $customer->email !== $data['email']) {
                 $customer->email = $data['email'];
+                $updated = true;
+            }
+
+            if ($updated) {
                 $customer->save();
             }
 

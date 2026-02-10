@@ -9,6 +9,8 @@ use App\Repositories\TicketRepository;
 
 class TicketService extends BaseService
 {
+    private const MAX_TICKETS_PER_DAY = 1;
+
     public function __construct(
         private readonly TicketRepository $ticketRepository,
         private readonly CustomerService $customerService
@@ -43,7 +45,7 @@ class TicketService extends BaseService
                 return $ticket->created_at->isToday();
             });
 
-        if ($todayTickets->isNotEmpty()) {
+        if ($todayTickets->count() >= self::MAX_TICKETS_PER_DAY) {
             throw new \RuntimeException('Only one ticket per day is allowed from the same contact');
         }
 
@@ -87,5 +89,18 @@ class TicketService extends BaseService
         ]);
 
         return $ticket->fresh();
+    }
+
+    /**
+     * Прикрепить файлы к заявке
+     */
+    public function attachFiles(Ticket $ticket, array $files): void
+    {
+        foreach ($files as $file) {
+            $ticket->addMedia($file->getRealPath())
+                ->usingName($file->getClientOriginalName())
+                ->usingFileName($file->getClientOriginalName())
+                ->toMediaCollection('attachments');
+        }
     }
 }
