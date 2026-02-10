@@ -298,7 +298,7 @@
                     }
                 } else {
                     // Ошибка
-                    let errorMessage = data.message || 'Произошла ошибка при отправке заявки.';
+                    let errorMessage = 'Произошла ошибка при отправке заявки ' + data.message;
 
                     // Если есть ошибки валидации
                     if (data.errors) {

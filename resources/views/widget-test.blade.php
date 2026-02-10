@@ -395,25 +395,25 @@
             const titleEl = document.getElementById('modal-title');
             const messageEl = document.getElementById('modal-message');
             const detailsEl = document.getElementById('modal-details');
-
+            
             // Убираем предыдущие классы
             content.classList.remove('success', 'error', 'info');
             content.classList.add(type);
-
+                
             // Устанавливаем содержимое
             titleEl.textContent = title;
             messageEl.textContent = message;
             detailsEl.textContent = '';
-
+                
             // Показываем детали, если есть
             if (details) {
                 const detailsText = JSON.stringify(details, null, 2);
                 detailsEl.textContent = 'Детали:\n' + detailsText;
             }
-
+            
             // Показываем модальное окно
             overlay.classList.add('show');
-
+            
             // Автоматически закрываем через 10 секунд (для успеха) или 15 секунд (для ошибки)
             const timeout = type === 'success' ? 10000 : 15000;
             setTimeout(() => {
