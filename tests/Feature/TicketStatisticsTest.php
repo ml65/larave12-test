@@ -102,5 +102,116 @@ class TicketStatisticsTest extends TestCase
         $data = $response->json('data');
         $this->assertEquals(5, $data['daily']);
     }
+
+    #[Test]
+    public function it_calculates_weekly_statistics_correctly(): void
+    {
+        $user = User::factory()->create();
+        $role = Role::firstOrCreate(['name' => 'manager']);
+        $user->assignRole($role);
+
+        // Создаем заявки в текущей неделе
+        Ticket::factory()->count(7)->create([
+            'created_at' => now()->startOfWeek()->addDays(2),
+        ]);
+
+        Ticket::factory()->count(3)->create([
+            'created_at' => now()->endOfWeek()->subDays(1),
+        ]);
+
+        // Создаем заявки вне текущей недели
+        Ticket::factory()->count(2)->create([
+            'created_at' => now()->startOfWeek()->subDay(),
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->getJson('/api/tickets/statistics');
+
+        $data = $response->json('data');
+        $this->assertEquals(10, $data['weekly']);
+    }
+
+    #[Test]
+    public function it_calculates_monthly_statistics_correctly(): void
+    {
+        $user = User::factory()->create();
+        $role = Role::firstOrCreate(['name' => 'manager']);
+        $user->assignRole($role);
+
+        // Создаем заявки в текущем месяце
+        Ticket::factory()->count(12)->create([
+            'created_at' => now()->startOfMonth()->addDays(5),
+        ]);
+
+        Ticket::factory()->count(8)->create([
+            'created_at' => now()->endOfMonth()->subDays(3),
+        ]);
+
+        // Создаем заявки вне текущего месяца
+        Ticket::factory()->count(5)->create([
+            'created_at' => now()->startOfMonth()->subDay(),
+        ]);
+
+        Ticket::factory()->count(3)->create([
+            'created_at' => now()->endOfMonth()->addDay(),
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->getJson('/api/tickets/statistics');
+
+        $data = $response->json('data');
+        $this->assertEquals(20, $data['monthly']);
+    }
+
+    #[Test]
+    public function it_excludes_tickets_outside_period(): void
+    {
+        $user = User::factory()->create();
+        $role = Role::firstOrCreate(['name' => 'manager']);
+        $user->assignRole($role);
+
+        // Создаем заявки за сегодня
+        Ticket::factory()->count(2)->create([
+            'created_at' => now(),
+        ]);
+
+        // Создаем заявки в текущей неделе, но не сегодня (вчера, если сегодня не начало недели)
+        $yesterday = now()->subDay();
+        if ($yesterday->isSameWeek(now())) {
+            Ticket::factory()->count(3)->create([
+                'created_at' => $yesterday,
+            ]);
+        } else {
+            // Если вчера была другая неделя, создаем в начале текущей недели
+            Ticket::factory()->count(3)->create([
+                'created_at' => now()->startOfWeek()->addDays(1),
+            ]);
+        }
+
+        // Создаем заявки в текущем месяце, но не в текущей неделе
+        $oldDate = now()->startOfMonth();
+        if ($oldDate->isSameWeek(now())) {
+            $oldDate = $oldDate->addWeeks(1);
+        }
+        Ticket::factory()->count(4)->create([
+            'created_at' => $oldDate,
+        ]);
+
+        // Создаем заявки вне всех периодов
+        Ticket::factory()->count(10)->create([
+            'created_at' => now()->subMonths(2),
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->getJson('/api/tickets/statistics');
+
+        $data = $response->json('data');
+        $this->assertEquals(2, $data['daily']); // Только за сегодня
+        $this->assertEquals(5, $data['weekly']); // За сегодня + в текущей неделе (но не сегодня)
+        $this->assertEquals(9, $data['monthly']); // Все в текущем месяце
+    }
 }
 

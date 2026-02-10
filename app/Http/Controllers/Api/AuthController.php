@@ -55,9 +55,12 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
-        if ($user) {
-            // Удаляем текущий токен
-            $user->currentAccessToken()?->delete();
+        if ($user && $user->currentAccessToken()) {
+            // Удаляем текущий токен (только если это PersonalAccessToken, не TransientToken)
+            $token = $user->currentAccessToken();
+            if (method_exists($token, 'delete')) {
+                $token->delete();
+            }
         }
 
         return response()->json([
