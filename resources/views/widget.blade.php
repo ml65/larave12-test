@@ -102,27 +102,95 @@
             cursor: not-allowed;
         }
 
-        .message {
+        /* Модальное окно */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 650px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            font-size: 20.8px; /* увеличение на 30% от базового 16px */
+            line-height: 1.5;
+        }
+
+        .modal-content.success {
+            background: #d4edda; /* светло-зеленый */
+            border-top: 4px solid #28a745;
+        }
+
+        .modal-content.error {
+            background: #fce4ec; /* розовый */
+            border-top: 4px solid #dc3545;
+        }
+
+        .modal-content.info {
+            background: #d1ecf1;
+            border-top: 4px solid #17a2b8;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal-title {
+            font-size: 26px; /* увеличение на 30% */
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-message {
+            font-size: 20.8px; /* увеличение на 30% */
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .modal-details {
+            margin-top: 15px;
+            font-size: 16.9px; /* увеличение на 30% от 13px */
+            color: #666;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: #f8f9fa;
             padding: 15px;
             border-radius: 4px;
-            margin-bottom: 20px;
-            display: none;
         }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .message.show {
-            display: block;
+        .message {
+            display: none !important; /* Скрыто, используется только модальное окно */
         }
 
         .error-list {
@@ -137,10 +205,18 @@
     </style>
 </head>
 <body>
+    <!-- Модальное окно для сообщений -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-content" class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-title" id="modal-title"></div>
+            <div class="modal-message" id="modal-message"></div>
+            <div class="modal-details" id="modal-details"></div>
+        </div>
+    </div>
+
     <div class="widget-container">
         <h1>Обратная связь</h1>
-
-        <div id="message" class="message"></div>
 
         <form id="ticket-form">
             <div class="form-group">
@@ -181,15 +257,10 @@
 
     <script>
         const form = document.getElementById('ticket-form');
-        const messageDiv = document.getElementById('message');
         const submitBtn = document.getElementById('submit-btn');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            // Скрываем предыдущие сообщения
-            messageDiv.classList.remove('show', 'success', 'error');
-            messageDiv.textContent = '';
 
             // Блокируем кнопку
             submitBtn.disabled = true;
@@ -211,17 +282,19 @@
 
                 if (response.ok) {
                     // Успешная отправка
-                    messageDiv.textContent = 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.';
-                    messageDiv.classList.add('show', 'success');
+                    const successMessage = 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.';
                     form.reset();
                     
-                    // Отправляем сообщение родительской странице
+                    // Если виджет встроен в iframe - отправляем сообщение родительской странице
+                    // Если виджет открыт напрямую - показываем модальное окно здесь
                     if (window.parent !== window) {
                         window.parent.postMessage({
                             type: 'ticket-success',
-                            message: 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.',
+                            message: successMessage,
                             data: data
                         }, '*');
+                    } else {
+                        showModal('success', 'Успешно!', successMessage, data);
                     }
                 } else {
                     // Ошибка
@@ -233,34 +306,87 @@
                         errorMessage = 'Ошибки валидации: ' + errorList;
                     }
 
-                    messageDiv.textContent = errorMessage;
-                    messageDiv.classList.add('show', 'error');
-                    
-                    // Отправляем сообщение родительской странице
+                    // Если виджет встроен в iframe - отправляем сообщение родительской странице
+                    // Если виджет открыт напрямую - показываем модальное окно здесь
                     if (window.parent !== window) {
                         window.parent.postMessage({
                             type: 'ticket-error',
                             message: errorMessage,
                             data: data
                         }, '*');
+                    } else {
+                        showModal('error', 'Ошибка', errorMessage, data);
                     }
                 }
             } catch (error) {
-                messageDiv.textContent = 'Произошла ошибка при отправке заявки. Попробуйте позже.';
-                messageDiv.classList.add('show', 'error');
+                const errorMessage = 'Произошла ошибка при отправке заявки. Попробуйте позже.';
                 
-                // Отправляем сообщение родительской странице
+                // Если виджет встроен в iframe - отправляем сообщение родительской странице
+                // Если виджет открыт напрямую - показываем модальное окно здесь
                 if (window.parent !== window) {
                     window.parent.postMessage({
                         type: 'ticket-error',
-                        message: 'Произошла ошибка при отправке заявки. Попробуйте позже.',
+                        message: errorMessage,
                         error: error.message
                     }, '*');
+                } else {
+                    showModal('error', 'Ошибка', errorMessage, { error: error.message });
                 }
             } finally {
                 // Разблокируем кнопку
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Отправить';
+            }
+        });
+
+        function showModal(type, title, message, details = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            const titleEl = document.getElementById('modal-title');
+            const messageEl = document.getElementById('modal-message');
+            const detailsEl = document.getElementById('modal-details');
+
+            // Убираем предыдущие классы
+            content.classList.remove('success', 'error', 'info');
+            content.classList.add(type);
+
+            // Устанавливаем содержимое
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            detailsEl.textContent = '';
+
+            // Показываем детали, если есть
+            if (details) {
+                const detailsText = JSON.stringify(details, null, 2);
+                detailsEl.textContent = 'Детали:\n' + detailsText;
+            }
+
+            // Показываем модальное окно
+            overlay.classList.add('show');
+
+            // Автоматически закрываем через 10 секунд (для успеха) или 15 секунд (для ошибки)
+            const timeout = type === 'success' ? 10000 : 15000;
+            setTimeout(() => {
+                closeModal();
+            }, timeout);
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modal-overlay');
+            overlay.classList.remove('show');
+        }
+
+        // Закрытие по клику на overlay
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
             }
         });
     </script>

@@ -117,21 +117,95 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .widget-message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            max-width: 400px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
+        /* Модальное окно */
+        .modal-overlay {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
 
-        .widget-message.show {
-            display: block;
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 650px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            font-size: 20.8px; /* увеличение на 30% от базового 16px */
+            line-height: 1.5;
+        }
+
+        .modal-content.success {
+            background: #d4edda; /* светло-зеленый */
+            border-top: 4px solid #28a745;
+        }
+
+        .modal-content.error {
+            background: #fce4ec; /* розовый */
+            border-top: 4px solid #dc3545;
+        }
+
+        .modal-content.info {
+            background: #d1ecf1;
+            border-top: 4px solid #17a2b8;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal-title {
+            font-size: 26px; /* увеличение на 30% */
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-message {
+            font-size: 20.8px; /* увеличение на 30% */
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .modal-details {
+            margin-top: 15px;
+            font-size: 16.9px; /* увеличение на 30% от 13px */
+            color: #666;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .widget-message {
+            display: none !important; /* Скрыто, используется только модальное окно */
         }
 
         .widget-message.success {
@@ -198,6 +272,16 @@
     </style>
 </head>
 <body>
+    <!-- Модальное окно для сообщений -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-content" class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-title" id="modal-title"></div>
+            <div class="modal-message" id="modal-message"></div>
+            <div class="modal-details" id="modal-details"></div>
+        </div>
+    </div>
+
     <div id="widget-message" class="widget-message">
         <div class="widget-message-content">
             <div class="widget-message-text">
@@ -297,46 +381,69 @@
         });
 
         function showWidgetMessage(data) {
-            widgetMessageText.textContent = data.message;
-            widgetMessageDetails.textContent = '';
+            // Используем модальное окно вместо старого сообщения
+            const type = data.type === 'ticket-success' ? 'success' : 'error';
+            const title = data.type === 'ticket-success' ? 'Успешно!' : 'Ошибка';
+            const details = data.data || (data.error ? { error: data.error } : null);
             
+            showModal(type, title, data.message, details);
+        }
+
+        function showModal(type, title, message, details = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            const titleEl = document.getElementById('modal-title');
+            const messageEl = document.getElementById('modal-message');
+            const detailsEl = document.getElementById('modal-details');
+
             // Убираем предыдущие классы
-            widgetMessageDiv.classList.remove('success', 'error', 'info');
-            
-            // Добавляем соответствующий класс
-            if (data.type === 'ticket-success') {
-                widgetMessageDiv.classList.add('success');
-                
-                // Показываем данные заявки, если есть
-                if (data.data) {
-                    const details = JSON.stringify(data.data, null, 2);
-                    widgetMessageDetails.textContent = 'Данные заявки:\n' + details;
-                }
-            } else {
-                widgetMessageDiv.classList.add('error');
-                
-                // Показываем детали ошибки, если есть
-                if (data.data) {
-                    const details = JSON.stringify(data.data, null, 2);
-                    widgetMessageDetails.textContent = 'Детали ошибки:\n' + details;
-                } else if (data.error) {
-                    widgetMessageDetails.textContent = 'Ошибка: ' + data.error;
-                }
+            content.classList.remove('success', 'error', 'info');
+            content.classList.add(type);
+
+            // Устанавливаем содержимое
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            detailsEl.textContent = '';
+
+            // Показываем детали, если есть
+            if (details) {
+                const detailsText = JSON.stringify(details, null, 2);
+                detailsEl.textContent = 'Детали:\n' + detailsText;
             }
-            
-            // Показываем сообщение
-            widgetMessageDiv.classList.add('show');
-            
-            // Автоматически скрываем через 10 секунд (для успеха) или 15 секунд (для ошибки)
-            const timeout = data.type === 'ticket-success' ? 10000 : 15000;
+
+            // Показываем модальное окно
+            overlay.classList.add('show');
+
+            // Автоматически закрываем через 10 секунд (для успеха) или 15 секунд (для ошибки)
+            const timeout = type === 'success' ? 10000 : 15000;
             setTimeout(() => {
-                closeWidgetMessage();
+                closeModal();
             }, timeout);
         }
 
+        function closeModal() {
+            const overlay = document.getElementById('modal-overlay');
+            overlay.classList.remove('show');
+        }
+
         function closeWidgetMessage() {
+            const widgetMessageDiv = document.getElementById('widget-message');
             widgetMessageDiv.classList.remove('show');
         }
+
+        // Закрытие по клику на overlay
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
