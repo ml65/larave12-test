@@ -116,9 +116,98 @@
         .back-link:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+
+        .widget-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            display: none;
+        }
+
+        .widget-message.show {
+            display: block;
+        }
+
+        .widget-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .widget-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .widget-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .widget-message-close {
+            float: right;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 15px;
+            opacity: 0.7;
+        }
+
+        .widget-message-close:hover {
+            opacity: 1;
+        }
+
+        .widget-message-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .widget-message-text {
+            flex: 1;
+        }
+
+        .widget-message-details {
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.8;
+            max-height: 100px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
+    <div id="widget-message" class="widget-message">
+        <div class="widget-message-content">
+            <div class="widget-message-text">
+                <div id="widget-message-text"></div>
+                <div id="widget-message-details" class="widget-message-details"></div>
+            </div>
+            <span class="widget-message-close" onclick="closeWidgetMessage()">&times;</span>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>🧪 Тест виджета обратной связи</h1>
@@ -135,6 +224,7 @@
             <div class="info-box">
                 <strong>Информация:</strong> Виджет доступен по адресу 
                 <code>{{ route('widget') }}</code> и может быть встроен на любой сайт.
+                <br>Возврат в админ-панель по адресу <code><a href="{{ route('admin.tickets.index') }}">{{ route('admin.tickets.index') }}</a></code>
             </div>
 
             <div class="widget-container">
@@ -191,6 +281,63 @@
 
         <a href="{{ url('/') }}" class="back-link">← Вернуться на главную</a>
     </div>
+
+    <script>
+        // Блок для отображения сообщений от виджета
+        const widgetMessageDiv = document.getElementById('widget-message');
+        const widgetMessageText = document.getElementById('widget-message-text');
+        const widgetMessageDetails = document.getElementById('widget-message-details');
+
+        // Слушаем сообщения от виджета
+        window.addEventListener('message', function(event) {
+            // Проверяем, что сообщение от нашего виджета (можно добавить проверку origin)
+            if (event.data && (event.data.type === 'ticket-success' || event.data.type === 'ticket-error')) {
+                showWidgetMessage(event.data);
+            }
+        });
+
+        function showWidgetMessage(data) {
+            widgetMessageText.textContent = data.message;
+            widgetMessageDetails.textContent = '';
+            
+            // Убираем предыдущие классы
+            widgetMessageDiv.classList.remove('success', 'error', 'info');
+            
+            // Добавляем соответствующий класс
+            if (data.type === 'ticket-success') {
+                widgetMessageDiv.classList.add('success');
+                
+                // Показываем данные заявки, если есть
+                if (data.data) {
+                    const details = JSON.stringify(data.data, null, 2);
+                    widgetMessageDetails.textContent = 'Данные заявки:\n' + details;
+                }
+            } else {
+                widgetMessageDiv.classList.add('error');
+                
+                // Показываем детали ошибки, если есть
+                if (data.data) {
+                    const details = JSON.stringify(data.data, null, 2);
+                    widgetMessageDetails.textContent = 'Детали ошибки:\n' + details;
+                } else if (data.error) {
+                    widgetMessageDetails.textContent = 'Ошибка: ' + data.error;
+                }
+            }
+            
+            // Показываем сообщение
+            widgetMessageDiv.classList.add('show');
+            
+            // Автоматически скрываем через 10 секунд (для успеха) или 15 секунд (для ошибки)
+            const timeout = data.type === 'ticket-success' ? 10000 : 15000;
+            setTimeout(() => {
+                closeWidgetMessage();
+            }, timeout);
+        }
+
+        function closeWidgetMessage() {
+            widgetMessageDiv.classList.remove('show');
+        }
+    </script>
 </body>
 </html>
 

@@ -214,6 +214,15 @@
                     messageDiv.textContent = 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.';
                     messageDiv.classList.add('show', 'success');
                     form.reset();
+                    
+                    // Отправляем сообщение родительской странице
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'ticket-success',
+                            message: 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.',
+                            data: data
+                        }, '*');
+                    }
                 } else {
                     // Ошибка
                     let errorMessage = data.message || 'Произошла ошибка при отправке заявки.';
@@ -226,10 +235,28 @@
 
                     messageDiv.textContent = errorMessage;
                     messageDiv.classList.add('show', 'error');
+                    
+                    // Отправляем сообщение родительской странице
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'ticket-error',
+                            message: errorMessage,
+                            data: data
+                        }, '*');
+                    }
                 }
             } catch (error) {
                 messageDiv.textContent = 'Произошла ошибка при отправке заявки. Попробуйте позже.';
                 messageDiv.classList.add('show', 'error');
+                
+                // Отправляем сообщение родительской странице
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'ticket-error',
+                        message: 'Произошла ошибка при отправке заявки. Попробуйте позже.',
+                        error: error.message
+                    }, '*');
+                }
             } finally {
                 // Разблокируем кнопку
                 submitBtn.disabled = false;

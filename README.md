@@ -239,15 +239,13 @@ curl -X POST http://localhost:8000/api/tickets \
 }
 ```
 
-### Получение статистики
+### Авторизация в API
 
-**GET** `/api/tickets/statistics`
+**POST** `/api/login`
 
-Возвращает статистику по заявкам. Доступно только для авторизованных менеджеров.
+Авторизация менеджера и получение токена для доступа к защищенным эндпойнтам.
 
-#### Авторизация
-
-Используйте Laravel Sanctum для авторизации. Получите токен:
+#### Запрос
 
 ```bash
 curl -X POST http://localhost:8000/api/login \
@@ -257,6 +255,68 @@ curl -X POST http://localhost:8000/api/login \
     "password": "password"
   }'
 ```
+
+#### Ответ (200 OK)
+
+```json
+{
+  "token": "1|abcdef1234567890...",
+  "user": {
+    "id": 1,
+    "name": "Manager",
+    "email": "manager@example.com"
+  }
+}
+```
+
+#### Ошибки
+
+**401 Unauthorized** — неверные учетные данные:
+
+```json
+{
+  "message": "Invalid credentials."
+}
+```
+
+**403 Forbidden** — пользователь не является менеджером:
+
+```json
+{
+  "message": "Access denied. Manager role required."
+}
+```
+
+### Выход из системы
+
+**POST** `/api/logout`
+
+Выход и удаление текущего токена. Требует авторизации.
+
+#### Запрос
+
+```bash
+curl -X POST http://localhost:8000/api/logout \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Ответ (200 OK)
+
+```json
+{
+  "message": "Logged out successfully."
+}
+```
+
+### Получение статистики
+
+**GET** `/api/tickets/statistics`
+
+Возвращает статистику по заявкам. Доступно только для авторизованных менеджеров.
+
+#### Авторизация
+
+Используйте токен, полученный при авторизации через `/api/login`.
 
 #### Запрос
 

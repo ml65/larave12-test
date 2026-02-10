@@ -74,14 +74,7 @@ class TicketController extends Controller
      */
     public function statistics(): TicketStatisticsResource|JsonResponse
     {
-        // Проверка авторизации
-        if (!auth()->check()) {
-            return response()->json([
-                'message' => 'Unauthenticated.',
-            ], 401);
-        }
-
-        // Проверка роли менеджера
+        // Проверка роли менеджера (авторизация уже проверена через middleware)
         if (!auth()->user()->hasRole('manager')) {
             return response()->json([
                 'message' => 'Access denied. Manager role required.',
