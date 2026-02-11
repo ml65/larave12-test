@@ -33,6 +33,7 @@ class TicketIntegrationTest extends TestCase
             'password' => Hash::make('password'),
         ]);
         $user->assignRole($role);
+
         return $user;
     }
 
@@ -115,7 +116,7 @@ class TicketIntegrationTest extends TestCase
 
         // Проверяем, что клиент обновлен, а не создан новый
         $this->assertDatabaseCount('customers', 1);
-        
+
         $existingCustomer->refresh();
         $this->assertEquals('New Name', $existingCustomer->name);
         $this->assertEquals('new@example.com', $existingCustomer->email);
@@ -160,7 +161,7 @@ class TicketIntegrationTest extends TestCase
         ]);
 
         // Фильтруем по статусу
-        $response = $this->get('/admin/tickets?status=' . Ticket::STATUS_NEW);
+        $response = $this->get('/admin/tickets?status='.Ticket::STATUS_NEW);
         $response->assertStatus(200);
         $tickets = $response->viewData('tickets');
         $this->assertCount(1, $tickets);
@@ -179,4 +180,3 @@ class TicketIntegrationTest extends TestCase
         $this->assertCount(2, $tickets);
     }
 }
-

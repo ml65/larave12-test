@@ -23,6 +23,7 @@ class AuthWebTest extends TestCase
             'password' => Hash::make('password'),
         ]);
         $user->assignRole($role);
+
         return $user;
     }
 
@@ -105,9 +106,8 @@ class AuthWebTest extends TestCase
 
         // Middleware возвращает 403 или редирект на login
         $this->assertTrue(
-            $response->status() === 403 || 
+            $response->status() === 403 ||
             $response->isRedirect(route('login'))
         );
     }
 }
-

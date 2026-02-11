@@ -115,4 +115,3 @@ class TicketModelTest extends TestCase
         $this->assertEquals('attachments', $media->first()->collection_name);
     }
 }
-

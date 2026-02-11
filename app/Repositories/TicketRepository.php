@@ -13,7 +13,7 @@ class TicketRepository extends BaseRepository
 {
     public function __construct()
     {
-        parent::__construct(new Ticket());
+        parent::__construct(new Ticket);
     }
 
     /**
@@ -38,9 +38,9 @@ class TicketRepository extends BaseRepository
     public function filter(array $filters): Collection
     {
         $query = $this->model->with('customer');
-        
+
         $query = $this->applyFilters($query, $filters);
-        
+
         return $query->orderBy('created_at', 'desc')->get();
     }
 
@@ -68,9 +68,9 @@ class TicketRepository extends BaseRepository
      */
     private function filterByCustomerEmail(Builder $query, string $email): Builder
     {
-        $customerIds = Customer::where('email', 'like', '%' . $email . '%')
+        $customerIds = Customer::where('email', 'like', '%'.$email.'%')
             ->pluck('id');
-        
+
         return $query->whereIn('customer_id', $customerIds);
     }
 
@@ -79,9 +79,9 @@ class TicketRepository extends BaseRepository
      */
     private function filterByCustomerPhone(Builder $query, string $phone): Builder
     {
-        $customerIds = Customer::where('phone', 'like', '%' . $phone . '%')
+        $customerIds = Customer::where('phone', 'like', '%'.$phone.'%')
             ->pluck('id');
-        
+
         return $query->whereIn('customer_id', $customerIds);
     }
 
@@ -111,7 +111,7 @@ class TicketRepository extends BaseRepository
 
     /**
      * Подсчитать количество заявок за текущий день (0:00:00 - 23:59:59) по телефону и email
-     * 
+     *
      * Проверяет заявки, где клиент имеет такой же телефон ИЛИ такой же email (если email указан)
      */
     public function countTicketsTodayByContact(string $phone, ?string $email = null): int
@@ -124,7 +124,7 @@ class TicketRepository extends BaseRepository
             ->whereHas('customer', function (Builder $query) use ($phone, $email) {
                 $query->where(function (Builder $q) use ($phone, $email) {
                     $q->where('phone', $phone);
-                    
+
                     if ($email !== null && $email !== '') {
                         $q->orWhere('email', $email);
                     }
@@ -134,4 +134,3 @@ class TicketRepository extends BaseRepository
         return $query->count();
     }
 }
-

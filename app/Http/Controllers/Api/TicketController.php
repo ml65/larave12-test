@@ -19,8 +19,7 @@ class TicketController extends Controller
     public function __construct(
         private readonly TicketService $ticketService,
         private readonly TicketRepository $ticketRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Создать новую заявку
@@ -136,18 +135,18 @@ class TicketController extends Controller
     {
         try {
             $validated = $request->validated();
-            
+
             // Создаем заявку через сервис
             $ticket = $this->ticketService->create($validated);
-            
+
             // Загружаем связь с клиентом
             $ticket->load('customer');
-            
+
             // Обрабатываем файлы через сервис
             if ($request->hasFile('files')) {
                 $this->ticketService->attachFiles($ticket, $request->file('files'));
             }
-            
+
             return new TicketResource($ticket);
         } catch (\InvalidArgumentException $e) {
             return response()->json([
@@ -159,7 +158,7 @@ class TicketController extends Controller
                 'phone' => $request->input('phone'),
                 'error' => $e->getMessage(),
             ]);
-            
+
             return response()->json([
                 'message' => $e->getMessage(),
             ], 429); // Too Many Requests
@@ -169,7 +168,7 @@ class TicketController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
                 'message' => 'Failed to create ticket. Please try again later.',
             ], 500);
@@ -226,7 +225,7 @@ class TicketController extends Controller
     public function statistics(): TicketStatisticsResource|JsonResponse
     {
         // Проверка роли менеджера (авторизация уже проверена через middleware)
-        if (!auth()->user()->hasRole('manager')) {
+        if (! auth()->user()->hasRole('manager')) {
             return response()->json([
                 'message' => 'Access denied. Manager role required.',
             ], 403);

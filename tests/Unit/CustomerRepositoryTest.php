@@ -19,7 +19,7 @@ class CustomerRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new CustomerRepository();
+        $this->repository = new CustomerRepository;
     }
 
     #[Test]
@@ -118,4 +118,3 @@ class CustomerRepositoryTest extends TestCase
         $this->assertStringContainsString('Иван', $customers->first()->name);
     }
 }
-

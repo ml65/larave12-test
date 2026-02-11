@@ -189,4 +189,3 @@ class TicketValidationTest extends TestCase
         $response2->assertStatus(201);
     }
 }
-

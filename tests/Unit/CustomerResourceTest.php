@@ -34,4 +34,3 @@ class CustomerResourceTest extends TestCase
         $this->assertEquals('test@example.com', $array['email']);
     }
 }
-

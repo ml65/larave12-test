@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Customer;
 use App\Models\Ticket;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -30,7 +29,7 @@ class TicketApiTest extends TestCase
         $response->assertStatus(201);
 
         $json = $response->json();
-        
+
         // Проверяем структуру ответа (может быть обернут в 'data' или нет)
         if (isset($json['data'])) {
             $response->assertJsonStructure([
@@ -91,4 +90,3 @@ class TicketApiTest extends TestCase
         ]);
     }
 }
-

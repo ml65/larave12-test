@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketService;
@@ -82,4 +81,3 @@ class TicketStatusTest extends TestCase
         $this->assertNull($updatedTicket->manager_response_date);
     }
 }
-

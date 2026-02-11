@@ -18,8 +18,7 @@ class TicketController extends Controller
     public function __construct(
         private readonly TicketRepository $ticketRepository,
         private readonly TicketService $ticketService
-    ) {
-    }
+    ) {}
 
     /**
      * Отобразить список заявок с фильтрацией
@@ -27,9 +26,9 @@ class TicketController extends Controller
     public function index(Request $request): View
     {
         $filters = $request->only(['status', 'date_from', 'date_to', 'email', 'phone']);
-        
+
         // Убираем пустые значения
-        $filters = array_filter($filters, fn($value) => $value !== null && $value !== '');
+        $filters = array_filter($filters, fn ($value) => $value !== null && $value !== '');
 
         $tickets = $this->ticketRepository->filter($filters);
 
@@ -75,15 +74,15 @@ class TicketController extends Controller
         } catch (\InvalidArgumentException $e) {
             return redirect()
                 ->route('admin.tickets.show', $id)
-                ->with('error', 'Неверный статус: ' . $e->getMessage());
+                ->with('error', 'Неверный статус: '.$e->getMessage());
         } catch (\RuntimeException $e) {
             return redirect()
                 ->route('admin.tickets.show', $id)
-                ->with('error', 'Заявка не найдена: ' . $e->getMessage());
+                ->with('error', 'Заявка не найдена: '.$e->getMessage());
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.tickets.show', $id)
-                ->with('error', 'Ошибка при обновлении статуса: ' . $e->getMessage());
+                ->with('error', 'Ошибка при обновлении статуса: '.$e->getMessage());
         }
     }
 }

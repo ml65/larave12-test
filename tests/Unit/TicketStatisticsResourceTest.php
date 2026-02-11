@@ -49,4 +49,3 @@ class TicketStatisticsResourceTest extends TestCase
         $this->assertEquals(0, $array['monthly']);
     }
 }
-

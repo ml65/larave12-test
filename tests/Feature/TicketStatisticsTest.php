@@ -214,4 +214,3 @@ class TicketStatisticsTest extends TestCase
         $this->assertEquals(9, $data['monthly']); // Все в текущем месяце
     }
 }
-

@@ -14,8 +14,7 @@ class TicketService extends BaseService
     public function __construct(
         private readonly TicketRepository $ticketRepository,
         private readonly CustomerService $customerService
-    ) {
-    }
+    ) {}
 
     /**
      * Создать заявку
@@ -69,7 +68,7 @@ class TicketService extends BaseService
             Ticket::STATUS_COMPLETED,
         ];
 
-        if (!in_array($status, $validStatuses, true)) {
+        if (! in_array($status, $validStatuses, true)) {
             throw new \InvalidArgumentException("Invalid status: {$status}");
         }
 

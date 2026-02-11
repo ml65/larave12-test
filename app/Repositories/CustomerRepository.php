@@ -11,7 +11,7 @@ class CustomerRepository extends BaseRepository
 {
     public function __construct()
     {
-        parent::__construct(new Customer());
+        parent::__construct(new Customer);
     }
 
     /**
@@ -52,18 +52,17 @@ class CustomerRepository extends BaseRepository
         $query = $this->model->newQuery();
 
         if (isset($filters['phone'])) {
-            $query->where('phone', 'like', '%' . $filters['phone'] . '%');
+            $query->where('phone', 'like', '%'.$filters['phone'].'%');
         }
 
         if (isset($filters['email'])) {
-            $query->where('email', 'like', '%' . $filters['email'] . '%');
+            $query->where('email', 'like', '%'.$filters['email'].'%');
         }
 
         if (isset($filters['name'])) {
-            $query->where('name', 'like', '%' . $filters['name'] . '%');
+            $query->where('name', 'like', '%'.$filters['name'].'%');
         }
 
         return $query->get();
     }
 }
-

@@ -28,7 +28,4 @@ use OpenApi\Attributes as OA;
     bearerFormat: 'JWT',
     description: 'Используйте токен, полученный при авторизации через /api/login'
 )]
-class OpenApiInfo
-{
-}
-
+class OpenApiInfo {}

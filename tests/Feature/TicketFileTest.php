@@ -144,4 +144,3 @@ class TicketFileTest extends TestCase
         $this->assertNotNull($mediaItem->getPath());
     }
 }
-

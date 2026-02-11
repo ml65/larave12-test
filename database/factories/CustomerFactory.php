@@ -23,7 +23,7 @@ class CustomerFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'phone' => '+7' . $this->faker->numerify('##########'), // E.164 формат для России
+            'phone' => '+7'.$this->faker->numerify('##########'), // E.164 формат для России
             'email' => $this->faker->optional()->safeEmail(),
         ];
     }

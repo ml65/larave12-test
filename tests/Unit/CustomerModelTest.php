@@ -38,4 +38,3 @@ class CustomerModelTest extends TestCase
         $this->assertCount(5, $customer->tickets);
     }
 }
-

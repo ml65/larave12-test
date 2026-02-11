@@ -18,7 +18,7 @@ class UpdateTicketStatusRequestTest extends TestCase
     #[Test]
     public function it_validates_status_is_required(): void
     {
-        $request = new UpdateTicketStatusRequest();
+        $request = new UpdateTicketStatusRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([], $rules);
@@ -30,7 +30,7 @@ class UpdateTicketStatusRequestTest extends TestCase
     #[Test]
     public function it_validates_status_is_valid_value(): void
     {
-        $request = new UpdateTicketStatusRequest();
+        $request = new UpdateTicketStatusRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([
@@ -43,7 +43,7 @@ class UpdateTicketStatusRequestTest extends TestCase
     #[Test]
     public function it_rejects_invalid_status(): void
     {
-        $request = new UpdateTicketStatusRequest();
+        $request = new UpdateTicketStatusRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([
@@ -57,7 +57,7 @@ class UpdateTicketStatusRequestTest extends TestCase
     #[Test]
     public function it_accepts_all_valid_statuses(): void
     {
-        $request = new UpdateTicketStatusRequest();
+        $request = new UpdateTicketStatusRequest;
         $rules = $request->rules();
 
         $validStatuses = [
@@ -72,4 +72,3 @@ class UpdateTicketStatusRequestTest extends TestCase
         }
     }
 }
-

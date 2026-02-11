@@ -73,7 +73,7 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Invalid credentials.',
             ], 401);
@@ -82,7 +82,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         // Проверяем роль менеджера
-        if (!$user->hasRole('manager')) {
+        if (! $user->hasRole('manager')) {
             Auth::logout();
 
             return response()->json([

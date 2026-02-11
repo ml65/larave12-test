@@ -11,8 +11,7 @@ class CustomerService extends BaseService
 {
     public function __construct(
         private readonly CustomerRepository $customerRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Найти или создать клиента

@@ -100,7 +100,7 @@ class AuthApiTest extends TestCase
 
         // Выходим с использованием токена
         $response = $this->postJson('/api/logout', [], [
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ]);
 
         $response->assertStatus(200)
@@ -120,4 +120,3 @@ class AuthApiTest extends TestCase
             ]);
     }
 }
-

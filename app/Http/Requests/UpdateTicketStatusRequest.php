@@ -25,7 +25,7 @@ class UpdateTicketStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'string', 'in:' . implode(',', [
+            'status' => ['required', 'string', 'in:'.implode(',', [
                 Ticket::STATUS_NEW,
                 Ticket::STATUS_IN_PROGRESS,
                 Ticket::STATUS_COMPLETED,

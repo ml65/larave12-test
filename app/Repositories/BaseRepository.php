@@ -56,4 +56,3 @@ class BaseRepository
         return $this->model->all();
     }
 }
-

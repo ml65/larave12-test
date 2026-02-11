@@ -21,6 +21,7 @@ class TicketWebTest extends TestCase
         $role = Role::firstOrCreate(['name' => 'manager']);
         $user = User::factory()->create();
         $user->assignRole($role);
+
         return $user;
     }
 
@@ -29,7 +30,7 @@ class TicketWebTest extends TestCase
     {
         $manager = $this->createManager();
         $customer = Customer::factory()->create();
-        
+
         Ticket::factory()->count(3)->create([
             'customer_id' => $customer->id,
         ]);
@@ -53,7 +54,7 @@ class TicketWebTest extends TestCase
     {
         $manager = $this->createManager();
         $customer = Customer::factory()->create();
-        
+
         Ticket::factory()->count(2)->create([
             'customer_id' => $customer->id,
             'status' => Ticket::STATUS_NEW,
@@ -66,7 +67,7 @@ class TicketWebTest extends TestCase
 
         $this->actingAs($manager);
 
-        $response = $this->get('/admin/tickets?status=' . Ticket::STATUS_NEW);
+        $response = $this->get('/admin/tickets?status='.Ticket::STATUS_NEW);
 
         $response->assertStatus(200);
         $tickets = $response->viewData('tickets');
@@ -81,7 +82,7 @@ class TicketWebTest extends TestCase
     {
         $manager = $this->createManager();
         $customer = Customer::factory()->create();
-        
+
         // Заявка в диапазоне
         Ticket::factory()->create([
             'customer_id' => $customer->id,
@@ -122,10 +123,10 @@ class TicketWebTest extends TestCase
     public function it_filters_tickets_by_customer_email(): void
     {
         $manager = $this->createManager();
-        
+
         $customer1 = Customer::factory()->create(['email' => 'test1@example.com']);
         $customer2 = Customer::factory()->create(['email' => 'test2@example.com']);
-        
+
         Ticket::factory()->create(['customer_id' => $customer1->id]);
         Ticket::factory()->create(['customer_id' => $customer2->id]);
 
@@ -143,10 +144,10 @@ class TicketWebTest extends TestCase
     public function it_filters_tickets_by_customer_phone(): void
     {
         $manager = $this->createManager();
-        
+
         $customer1 = Customer::factory()->create(['phone' => '+79991234567']);
         $customer2 = Customer::factory()->create(['phone' => '+79991234568']);
-        
+
         Ticket::factory()->create(['customer_id' => $customer1->id]);
         Ticket::factory()->create(['customer_id' => $customer2->id]);
 
@@ -234,4 +235,3 @@ class TicketWebTest extends TestCase
         $response->assertSessionHasErrors(['status']);
     }
 }
-

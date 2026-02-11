@@ -20,7 +20,7 @@ class TicketRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TicketRepository();
+        $this->repository = new TicketRepository;
     }
 
     #[Test]
@@ -170,4 +170,3 @@ class TicketRepositoryTest extends TestCase
         $this->assertEquals(10, $count);
     }
 }
-

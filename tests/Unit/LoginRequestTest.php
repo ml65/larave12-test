@@ -17,7 +17,7 @@ class LoginRequestTest extends TestCase
     #[Test]
     public function it_validates_email_is_required(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([], $rules);
@@ -29,7 +29,7 @@ class LoginRequestTest extends TestCase
     #[Test]
     public function it_validates_email_format(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([
@@ -44,7 +44,7 @@ class LoginRequestTest extends TestCase
     #[Test]
     public function it_validates_password_is_required(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([
@@ -58,7 +58,7 @@ class LoginRequestTest extends TestCase
     #[Test]
     public function it_passes_validation_with_valid_data(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $rules = $request->rules();
 
         $validator = Validator::make([
@@ -69,4 +69,3 @@ class LoginRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 }
-

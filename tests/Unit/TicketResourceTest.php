@@ -69,4 +69,3 @@ class TicketResourceTest extends TestCase
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $array['created_at']);
     }
 }
-

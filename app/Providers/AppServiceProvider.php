@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Обновляем конфигурацию меню AdminLTE
         $menu = config('adminlte.menu', []);
-        
+
         // Находим элемент меню "tickets" и обновляем его
         foreach ($menu as $key => $item) {
             if (isset($item['text']) && $item['text'] === 'tickets') {
@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
                 break;
             }
         }
-        
+
         config(['adminlte.menu' => $menu]);
     }
 }
